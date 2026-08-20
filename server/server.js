@@ -6,6 +6,8 @@ const connectDB = require("./config/db");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 const artisanRoutes = require("./routes/artisanRoutes");
+const authRoutes = require("./routes/authRoutes");
+const cooperativeRoutes = require("./routes/cooperativeRoutes");
 
 connectDB();
 
@@ -19,11 +21,9 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/artisans", artisanRoutes);
-
-// Teammates mount their routes below:
-// app.use("/api/cooperatives", require("./routes/cooperativeRoutes"));
+app.use("/api/auth", authRoutes);
+app.use("/api/cooperatives", cooperativeRoutes);
 // app.use("/api/passports", require("./routes/passportRoutes"));
-// app.use("/api/auth", require("./routes/authRoutes"));
 
 app.use(notFound);
 app.use(errorHandler);

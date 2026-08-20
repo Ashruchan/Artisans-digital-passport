@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Hammer } from "lucide-react";
+import {
+  sendArtisanOtp,
+  verifyArtisanOtp,
+  getArtisanMe,
+  friendlyAuthError,
+} from "../api/client";
 
 const TOKEN_KEY = "artisanToken";
 
@@ -30,6 +36,8 @@ function clearToken() {
 
 export default function ArtisanPage() {
   const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState("phone"); // "phone" | "otp"
   const [artisan, setArtisan] = useState(null);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: "idle", message: "" });
@@ -41,31 +49,17 @@ export default function ArtisanPage() {
     (async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/artisans/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!res.ok) {
-          clearToken();
-          setStatus({
-            type: "info",
-            message: "Please log in again.",
-          });
-          return;
-        }
-
-        const data = await res.json();
+        const data = await getArtisanMe(token);
         setArtisan(data);
         setStatus({
           type: "success",
           message: `Welcome back${data?.name ? `, ${data.name}` : ""}.`,
         });
       } catch {
+        clearToken();
         setStatus({
-          type: "error",
-          message: "Could not load your account. Please try again.",
+          type: "info",
+          message: "Please log in again.",
         });
       } finally {
         setLoading(false);
@@ -73,101 +67,123 @@ export default function ArtisanPage() {
     })();
   }, []);
 
-  async function tryLoginWithCandidates(payload) {
-    const candidates = [
-      "/api/artisans/login",
-      "/api/auth/artisan/login",
-      "/api/auth/login",
-    ];
-
-    let lastError = null;
-
-    for (const url of candidates) {
-      try {
-        const res = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        if (res.status === 404) continue;
-
-        let data = null;
-        try {
-          data = await res.json();
-        } catch {
-          data = null;
-        }
-
-        if (res.ok) {
-          const token =
-            data?.token ??
-            data?.accessToken ??
-            data?.jwt ??
-            data?.access_token ??
-            null;
-
-          if (token) {
-            setToken(token);
-            return { ok: true, token, data };
-          }
-
-          return { ok: true, token: null, data };
-        }
-
-        const msg = data?.message ?? data?.error ?? `Login failed (${res.status}).`;
-        lastError = new Error(msg);
-      } catch (err) {
-        lastError = err;
-      }
-    }
-
-    throw lastError ?? new Error("Could not log in. Please try again.");
-  }
-
-  async function handleSubmit(e) {
+  async function handleSendOtp(e) {
     e.preventDefault();
     setLoading(true);
     setStatus({ type: "idle", message: "" });
 
     const cleanedPhone = phone.replace(/\s+/g, "");
 
-    try {
-      const result = await tryLoginWithCandidates({
-        phone: cleanedPhone,
-        mobile: cleanedPhone,
-      });
-
-      if (result.token) {
-        const res = await fetch("/api/artisans/me", {
-          headers: { Authorization: `Bearer ${result.token}` },
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          setArtisan(data);
-          setStatus({
-            type: "success",
-            message: `Welcome${data?.name ? `, ${data.name}` : ""}!`,
-          });
-          return;
-        }
-      }
-
+    if (!cleanedPhone) {
       setStatus({
-        type: "info",
-        message: "Could not log in with this number. Please ask your cooperative for help.",
+        type: "error",
+        message: "Please enter your phone number.",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const data = await sendArtisanOtp(cleanedPhone);
+
+      setStep("otp");
+      setOtp("");
+      setStatus({
+        type: "success",
+        message: data?.message || "OTP sent. Enter the code below.",
       });
 
-      if (result.data) setArtisan(result.data);
+      // Demo only: show OTP in an alert when backend returns it
+      if (data?.otp) {
+        window.alert(`Demo OTP for ${cleanedPhone}:\n\n${data.otp}`);
+      }
     } catch (err) {
       setStatus({
         type: "error",
-        message: err?.message ?? "Login failed. Please try again.",
+        message: friendlyAuthError(
+          err,
+          "Could not send OTP. Please try again."
+        ),
       });
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleVerifyOtp(e) {
+    e.preventDefault();
+    setLoading(true);
+    setStatus({ type: "idle", message: "" });
+
+    const cleanedPhone = phone.replace(/\s+/g, "");
+    const cleanedOtp = otp.replace(/\s+/g, "");
+
+    if (!cleanedOtp) {
+      setStatus({
+        type: "error",
+        message: "Please enter the 6-digit OTP.",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (!/^\d{6}$/.test(cleanedOtp)) {
+      setStatus({
+        type: "error",
+        message: "OTP must be a 6-digit number.",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const data = await verifyArtisanOtp(cleanedPhone, cleanedOtp);
+
+      if (data?.token) {
+        setToken(data.token);
+      }
+
+      if (data?.artisan) {
+        setArtisan(data.artisan);
+      } else if (data?.token) {
+        const me = await getArtisanMe(data.token);
+        setArtisan(me);
+      }
+
+      setStatus({
+        type: "success",
+        message:
+          data?.message ||
+          `Welcome${data?.artisan?.name ? `, ${data.artisan.name}` : ""}!`,
+      });
+      setStep("phone");
+      setOtp("");
+    } catch (err) {
+      setStatus({
+        type: "error",
+        message: err?.message || "OTP check failed. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleChangeNumber() {
+    setStep("phone");
+    setOtp("");
+    setStatus({ type: "idle", message: "" });
+  }
+
+  function handleLogout() {
+    clearToken();
+    setArtisan(null);
+    setPhone("");
+    setOtp("");
+    setStep("phone");
+    setStatus({
+      type: "info",
+      message: "You have logged out.",
+    });
   }
 
   return (
@@ -195,7 +211,9 @@ export default function ArtisanPage() {
                 Artisan login
               </h1>
               <p className="text-base text-[#2B2420]/80">
-                Enter your phone number to continue.
+                {step === "otp"
+                  ? "Enter the OTP sent to your phone."
+                  : "Enter your phone number to continue."}
               </p>
             </div>
           </div>
@@ -222,27 +240,25 @@ export default function ArtisanPage() {
           {artisan ? (
             <div className="mb-6">
               <p className="text-lg font-semibold text-[#2B2420]">
-                {artisan?.name ? `${artisan.name}` : "Artisan"}, you are logged in.
+                {artisan?.name ? `${artisan.name}` : "Artisan"}, you are logged
+                in.
               </p>
+              {artisan?.phone ? (
+                <p className="text-base text-[#2B2420]/80 mt-1">
+                  Phone: {artisan.phone}
+                </p>
+              ) : null}
               <button
                 type="button"
                 disabled={loading}
-                onClick={() => {
-                  clearToken();
-                  setArtisan(null);
-                  setPhone("");
-                  setStatus({
-                    type: "info",
-                    message: "You have logged out.",
-                  });
-                }}
+                onClick={handleLogout}
                 className="mt-4 px-5 py-3 rounded-2xl text-base font-semibold border border-[#3E5641] text-[#3E5641] hover:bg-[#3E5641] hover:text-[#FAF3E9] transition-colors disabled:opacity-60"
               >
                 Log out
               </button>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit}>
+          ) : step === "phone" ? (
+            <form onSubmit={handleSendOtp}>
               <div className="mb-6">
                 <label
                   htmlFor="phone"
@@ -268,7 +284,67 @@ export default function ArtisanPage() {
                 disabled={loading}
                 className="w-full bg-[#C1613C] text-[#FAF3E9] px-5 py-4 rounded-2xl text-lg font-semibold shadow-sm hover:bg-[#8A3B23] transition-colors disabled:opacity-60"
               >
-                {loading ? "Please wait..." : "Log in"}
+                {loading ? "Sending OTP..." : "Send OTP"}
+              </button>
+
+              <p className="text-base text-[#2B2420]/80 mt-6 text-center leading-relaxed">
+                Not registered yet? Please contact your cooperative.
+              </p>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp}>
+              <div className="mb-4">
+                <p className="text-base text-[#2B2420]/80">
+                  OTP sent to{" "}
+                  <span className="font-semibold text-[#2B2420]">{phone}</span>
+                </p>
+                <button
+                  type="button"
+                  onClick={handleChangeNumber}
+                  className="mt-1 text-base font-semibold text-[#C1613C] hover:underline"
+                >
+                  Change number
+                </button>
+              </div>
+
+              <div className="mb-6">
+                <label
+                  htmlFor="otp"
+                  className="block text-base font-semibold text-[#2B2420] mb-2"
+                >
+                  Enter OTP
+                </label>
+                <input
+                  id="otp"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  value={otp}
+                  onChange={(e) =>
+                    setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                  }
+                  required
+                  maxLength={6}
+                  placeholder="6-digit code"
+                  className="w-full rounded-2xl bg-[#FAF3E9] text-[#2B2420] text-lg tracking-widest px-5 py-4 outline-none border-2 border-[#3E5641]/30 focus:border-[#C1613C] focus:ring-2 focus:ring-[#C1613C]/30"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-[#C1613C] text-[#FAF3E9] px-5 py-4 rounded-2xl text-lg font-semibold shadow-sm hover:bg-[#8A3B23] transition-colors disabled:opacity-60"
+              >
+                {loading ? "Checking..." : "Verify & log in"}
+              </button>
+
+              <button
+                type="button"
+                disabled={loading}
+                onClick={handleSendOtp}
+                className="w-full mt-3 px-5 py-3 rounded-2xl text-base font-semibold border border-[#3E5641] text-[#3E5641] hover:bg-[#3E5641] hover:text-[#FAF3E9] transition-colors disabled:opacity-60"
+              >
+                {loading ? "Please wait..." : "Resend OTP"}
               </button>
 
               <p className="text-base text-[#2B2420]/80 mt-6 text-center leading-relaxed">

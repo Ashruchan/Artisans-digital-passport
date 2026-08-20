@@ -17,7 +17,6 @@ const artisanSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Keep password for now so existing functionality doesn't break.
     password: {
       type: String,
       required: [true, "Password is required"],
@@ -65,6 +64,18 @@ const artisanSchema = new mongoose.Schema(
       default: "",
     },
 
+    region: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    experience: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
     cooperative: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Cooperative",
@@ -74,11 +85,10 @@ const artisanSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-artisanSchema.pre("save", async function hashPassword(next) {
-  if (!this.isModified("password")) return next();
+artisanSchema.pre("save", async function hashPassword() {
+  if (!this.isModified("password")) return;
 
   this.password = await bcrypt.hash(this.password, 10);
-  next();
 });
 
 artisanSchema.methods.matchPassword = async function matchPassword(
