@@ -11,19 +11,35 @@ const protect = async (req, res, next) => {
     }
 
     const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = await Artisan.findById(decoded.id).select("-password");
-    if (!req.user) {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    const artisan = await Artisan.findById(decoded.id).select(
+      "-password -otpHash -otpExpiresAt -otpAttempts -otpLastSentAt"
+    );
+
+    if (!artisan) {
       res.status(401);
-      throw new Error("Not authorized, artisan not found");
+      throw new Error(
+        "Not authorized, artisan not found"
+      );
     }
+
+    if (!artisan.phoneVerified) {
+      res.status(401);
+      throw new Error(
+        "Phone number is not verified"
+      );
+    }
+
+    req.user = artisan;
 
     next();
   } catch (err) {
-    if (!res.statusCode || res.statusCode === 200) {
-      res.status(401);
-    }
+    res.status(401);
     next(err);
   }
 };
