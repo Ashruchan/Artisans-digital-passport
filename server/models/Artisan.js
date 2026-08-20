@@ -8,6 +8,7 @@ const artisanSchema = new mongoose.Schema(
       required: [true, "Name is required"],
       trim: true,
     },
+
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -15,17 +16,55 @@ const artisanSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+
+    // Keep password for now so existing functionality doesn't break.
     password: {
       type: String,
       required: [true, "Password is required"],
       minlength: 6,
       select: false,
     },
+
+    phone: {
+      type: String,
+      required: [true, "Phone number is required"],
+      unique: true,
+      trim: true,
+    },
+
+    phoneVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    // OTP fields
+    otpHash: {
+      type: String,
+      select: false,
+    },
+
+    otpExpiresAt: {
+      type: Date,
+      select: false,
+    },
+
+    otpAttempts: {
+      type: Number,
+      default: 0,
+      select: false,
+    },
+
+    otpLastSentAt: {
+      type: Date,
+      select: false,
+    },
+
     craft: {
       type: String,
       trim: true,
       default: "",
     },
+
     cooperative: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Cooperative",
@@ -37,11 +76,14 @@ const artisanSchema = new mongoose.Schema(
 
 artisanSchema.pre("save", async function hashPassword(next) {
   if (!this.isModified("password")) return next();
+
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-artisanSchema.methods.matchPassword = async function matchPassword(enteredPassword) {
+artisanSchema.methods.matchPassword = async function matchPassword(
+  enteredPassword
+) {
   return bcrypt.compare(enteredPassword, this.password);
 };
 
