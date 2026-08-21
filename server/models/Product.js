@@ -62,6 +62,19 @@ const productSchema = new mongoose.Schema(
       default: "",
     },
 
+    region: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    /** Product / passport photo (URL or data URL for demo). */
+    imageUrl: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
     verifiedAt: {
       type: Date,
       default: null,

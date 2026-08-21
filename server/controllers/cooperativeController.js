@@ -396,6 +396,8 @@ const createProductByCooperative = async (req, res, next) => {
       artisanPayout: Number(artisanPayout),
       materialsUsed: materialsUsed ? materialsUsed.trim() : "",
       craftStory: craftStory ? craftStory.trim() : "",
+      region: req.body.region ? String(req.body.region).trim() : artisan.region || "",
+      imageUrl: req.body.imageUrl ? String(req.body.imageUrl).trim() : "",
       status: "Waiting",
     });
 

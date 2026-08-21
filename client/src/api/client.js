@@ -134,6 +134,38 @@ export async function getArtisanMe(token) {
   });
 }
 
+export async function getArtisanProducts(token) {
+  return apiGet("/artisans/products", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getArtisanProduct(token, productId) {
+  return apiGet(`/artisans/products/${productId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function createArtisanProduct(token, data) {
+  return apiPost("/artisans/products", data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getArtisanEarnings(token) {
+  return apiGet("/artisans/earnings", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getPublicPassport(passportId) {
+  return apiGet(`/passports/${passportId}`);
+}
+
+export async function reportPublicPassport(passportId) {
+  return apiPost(`/passports/${passportId}/report`, {});
+}
+
 export async function registerCooperative(data) {
   return apiPost("/cooperatives/register", data);
 }

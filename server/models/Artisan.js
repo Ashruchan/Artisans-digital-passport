@@ -76,6 +76,12 @@ const artisanSchema = new mongoose.Schema(
       default: "",
     },
 
+    photoUrl: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
     cooperative: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Cooperative",

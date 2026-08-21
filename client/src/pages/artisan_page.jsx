@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Hammer } from "lucide-react";
 import {
   sendArtisanOtp,
@@ -7,65 +7,42 @@ import {
   getArtisanMe,
   friendlyAuthError,
 } from "../api/client";
-
-const TOKEN_KEY = "artisanToken";
-
-function getToken() {
-  try {
-    return window.localStorage.getItem(TOKEN_KEY);
-  } catch {
-    return null;
-  }
-}
-
-function setToken(token) {
-  try {
-    window.localStorage.setItem(TOKEN_KEY, token);
-  } catch {
-    // ignore
-  }
-}
-
-function clearToken() {
-  try {
-    window.localStorage.removeItem(TOKEN_KEY);
-  } catch {
-    // ignore
-  }
-}
+import {
+  clearArtisanToken,
+  getArtisanToken,
+  setArtisanToken,
+} from "../utils/artisanAuth";
 
 export default function ArtisanPage() {
+  const navigate = useNavigate();
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
-  const [step, setStep] = useState("phone"); // "phone" | "otp"
-  const [artisan, setArtisan] = useState(null);
+  const [step, setStep] = useState("phone");
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [status, setStatus] = useState({ type: "idle", message: "" });
 
   useEffect(() => {
-    const token = getToken();
-    if (!token) return;
+    const token = getArtisanToken();
+    if (!token) {
+      setCheckingSession(false);
+      return;
+    }
 
     (async () => {
-      setLoading(true);
       try {
-        const data = await getArtisanMe(token);
-        setArtisan(data);
-        setStatus({
-          type: "success",
-          message: `Welcome back${data?.name ? `, ${data.name}` : ""}.`,
-        });
+        await getArtisanMe(token);
+        navigate("/artisan/home", { replace: true });
       } catch {
-        clearToken();
+        clearArtisanToken();
         setStatus({
           type: "info",
           message: "Please log in again.",
         });
-      } finally {
-        setLoading(false);
+        setCheckingSession(false);
       }
     })();
-  }, []);
+  }, [navigate]);
 
   async function handleSendOtp(e) {
     e.preventDefault();
@@ -93,7 +70,6 @@ export default function ArtisanPage() {
         message: data?.message || "OTP sent. Enter the code below.",
       });
 
-      // Demo only: show OTP in an alert when backend returns it
       if (data?.otp) {
         window.alert(`Demo OTP for ${cleanedPhone}:\n\n${data.otp}`);
       }
@@ -140,30 +116,15 @@ export default function ArtisanPage() {
       const data = await verifyArtisanOtp(cleanedPhone, cleanedOtp);
 
       if (data?.token) {
-        setToken(data.token);
+        setArtisanToken(data.token);
       }
 
-      if (data?.artisan) {
-        setArtisan(data.artisan);
-      } else if (data?.token) {
-        const me = await getArtisanMe(data.token);
-        setArtisan(me);
-      }
-
-      setStatus({
-        type: "success",
-        message:
-          data?.message ||
-          `Welcome${data?.artisan?.name ? `, ${data.artisan.name}` : ""}!`,
-      });
-      setStep("phone");
-      setOtp("");
+      navigate("/artisan/home", { replace: true });
     } catch (err) {
       setStatus({
         type: "error",
         message: err?.message || "OTP check failed. Please try again.",
       });
-    } finally {
       setLoading(false);
     }
   }
@@ -174,16 +135,12 @@ export default function ArtisanPage() {
     setStatus({ type: "idle", message: "" });
   }
 
-  function handleLogout() {
-    clearToken();
-    setArtisan(null);
-    setPhone("");
-    setOtp("");
-    setStep("phone");
-    setStatus({
-      type: "info",
-      message: "You have logged out.",
-    });
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen bg-[#FAF3E9] flex items-center justify-center text-[#3E5641] text-xl font-semibold">
+        Loading...
+      </div>
+    );
   }
 
   return (
@@ -237,27 +194,7 @@ export default function ArtisanPage() {
             </div>
           ) : null}
 
-          {artisan ? (
-            <div className="mb-6">
-              <p className="text-lg font-semibold text-[#2B2420]">
-                {artisan?.name ? `${artisan.name}` : "Artisan"}, you are logged
-                in.
-              </p>
-              {artisan?.phone ? (
-                <p className="text-base text-[#2B2420]/80 mt-1">
-                  Phone: {artisan.phone}
-                </p>
-              ) : null}
-              <button
-                type="button"
-                disabled={loading}
-                onClick={handleLogout}
-                className="mt-4 px-5 py-3 rounded-2xl text-base font-semibold border border-[#3E5641] text-[#3E5641] hover:bg-[#3E5641] hover:text-[#FAF3E9] transition-colors disabled:opacity-60"
-              >
-                Log out
-              </button>
-            </div>
-          ) : step === "phone" ? (
+          {step === "phone" ? (
             <form onSubmit={handleSendOtp}>
               <div className="mb-6">
                 <label

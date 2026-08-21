@@ -14,7 +14,7 @@ connectDB();
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "8mb" }));
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "Server running" });
@@ -23,7 +23,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/artisans", artisanRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/cooperatives", cooperativeRoutes);
-// app.use("/api/passports", require("./routes/passportRoutes"));
+app.use("/api/passports", require("./routes/passportRoutes"));
 
 app.use(notFound);
 app.use(errorHandler);
