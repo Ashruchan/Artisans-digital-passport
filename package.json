@@ -1,0 +1,26 @@
+{
+  "name": "artisans_digital_passport",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "npm start --prefix server",
+    "client": "npm run dev --prefix client",
+    "start": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ashruchan/Artisans-digital-passport.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ashruchan/Artisans-digital-passport/issues"
+  },
+  "homepage": "https://github.com/Ashruchan/Artisans-digital-passport#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}
