@@ -21,6 +21,7 @@ export default function ArtisanPage() {
   const [loading, setLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
   const [status, setStatus] = useState({ type: "idle", message: "" });
+  const [demoOtp, setDemoOtp] = useState(null);
 
   useEffect(() => {
     const token = getArtisanToken();
@@ -69,10 +70,7 @@ export default function ArtisanPage() {
         type: "success",
         message: data?.message || "OTP sent. Enter the code below.",
       });
-
-      if (data?.otp) {
-        window.alert(`Demo OTP for ${cleanedPhone}:\n\n${data.otp}`);
-      }
+      setDemoOtp(data?.otp || null);
     } catch (err) {
       setStatus({
         type: "error",
@@ -132,6 +130,7 @@ export default function ArtisanPage() {
   function handleChangeNumber() {
     setStep("phone");
     setOtp("");
+    setDemoOtp(null);
     setStatus({ type: "idle", message: "" });
   }
 
@@ -242,6 +241,12 @@ export default function ArtisanPage() {
                 >
                   Change number
                 </button>
+
+                {demoOtp ? (
+                  <div className="mt-3 rounded-2xl px-4 py-3 bg-[#D9A441]/20 border border-[#D9A441] text-[#2B2420] text-base font-semibold">
+                    Demo OTP: <span className="tracking-widest">{demoOtp}</span>
+                  </div>
+                ) : null}
               </div>
 
               <div className="mb-6">
