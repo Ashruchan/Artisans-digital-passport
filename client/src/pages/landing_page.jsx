@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Hammer,
@@ -14,6 +14,43 @@ export default function Landing() {
   const navigate = useNavigate();
   const [passportId, setPassportId] = useState("");
   const [checkError, setCheckError] = useState("");
+  const slogans = [
+    "Know who made it. Trust what you buy.",
+    "जानिए इसे किसने बनाया। जो खरीदें, उस पर भरोसा करें।",
+  ];
+
+  const [sloganIndex, setSloganIndex] = useState(0);
+  const [displayText, setDisplayText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentSlogan = slogans[sloganIndex];
+
+    const typingSpeed = isDeleting ? 45 : 75;
+
+    const timer = setTimeout(() => {
+      if (!isDeleting) {
+        setDisplayText(
+          currentSlogan.substring(0, displayText.length + 1)
+        );
+
+        if (displayText.length === currentSlogan.length) {
+          setTimeout(() => setIsDeleting(true), 1800);
+        }
+      } else {
+        setDisplayText(
+          currentSlogan.substring(0, displayText.length - 1)
+        );
+
+        if (displayText.length === 0) {
+          setIsDeleting(false);
+          setSloganIndex((prev) => (prev + 1) % slogans.length);
+        }
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timer);
+  }, [displayText, isDeleting, sloganIndex]);
 
   function handleCheckProduct(e) {
     e.preventDefault();
@@ -53,8 +90,11 @@ export default function Landing() {
         </nav>
 
         <section className="px-5 sm:px-6 pt-8 sm:pt-14 pb-16 sm:pb-20 text-center">
-          <h1 className="text-[2rem] leading-tight sm:text-4xl md:text-5xl font-bold text-[#2F4A32] font-display max-w-2xl mx-auto">
-            Know who made it. Trust what you buy.
+          <h1 className="text-[2rem] leading-tight sm:text-4xl md:text-5xl font-bold text-[#2F4A32] font-display max-w-2xl mx-auto min-h-[5rem] sm:min-h-[7rem] flex items-center justify-center">
+            <span>
+              {displayText}
+              <span className="animate-pulse ml-1">|</span>
+            </span>
           </h1>
           <p className="mt-4 text-base sm:text-lg text-[#2B2420]/85 max-w-md mx-auto">
             See who made a handmade product and whether it is real.
