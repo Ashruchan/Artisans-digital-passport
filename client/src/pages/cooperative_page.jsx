@@ -20,6 +20,9 @@ import {
   RefreshCw,
 } from "lucide-react";
 
+import PageHeader from "../components/PageHeader";
+import LanguageSwitcher from "../components/LanguageSwitcher";
+import BackButton from "../components/BackButton";
 import {
   registerCooperative,
   sendCooperativeOtp,
@@ -730,24 +733,7 @@ export default function CooperativePage() {
   if (view === "login" || view === "register") {
     return (
       <div className="min-h-screen bg-[#FAF3E9] text-[#2B2420]">
-        <nav className="px-6 py-5 flex items-center justify-between">
-          <Link
-            to="/"
-            className="text-2xl font-bold"
-          >
-            <span className="text-[#3E5641]">
-              Karigar
-            </span>
-          </Link>
-
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-base font-semibold px-5 py-2.5 rounded-2xl border border-[#3E5641] text-[#3E5641] hover:bg-[#3E5641] hover:text-[#FAF3E9] transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </Link>
-        </nav>
+        <PageHeader fallback="/" />
 
         <div className="px-6 pb-16 pt-4">
           <div className="max-w-md mx-auto">
@@ -1027,19 +1013,16 @@ export default function CooperativePage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 
             <div>
-              <Link
-                to="/"
-                className="text-2xl font-bold text-[#3E5641]"
-              >
-                Karigar
-              </Link>
+              <p className="text-2xl font-bold text-[#3E5641]">Karigar</p>
 
               <p className="text-sm text-[#2B2420]/65 mt-1">
                 Cooperative Portal
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              <LanguageSwitcher />
+              <BackButton fallback="/" />
 
               <button
                 type="button"

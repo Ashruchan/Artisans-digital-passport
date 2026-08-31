@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Package, Eye } from "lucide-react";
 import { getArtisanProducts } from "../../api/client";
 import {
+  artisanPassportPath,
   getArtisanToken,
   statusColors,
   statusLabel,
@@ -90,7 +91,7 @@ export default function ArtisanProducts() {
                   {statusLabel(product.status)}
                 </span>
                 <Link
-                  to={`/passport/${product.passportId || product.id}`}
+                  to={artisanPassportPath(product.passportId || product.id)}
                   className="mt-auto inline-flex items-center justify-center gap-2 w-full bg-[#3E5641] text-[#FAF3E9] px-5 py-3.5 rounded-2xl text-lg font-semibold"
                 >
                   <Eye className="w-5 h-5" />

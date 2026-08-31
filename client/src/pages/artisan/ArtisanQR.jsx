@@ -4,6 +4,7 @@ import { QrCode, Eye, Package } from "lucide-react";
 import { getArtisanProducts } from "../../api/client";
 import QrCodeImage from "../../components/QrCodeImage";
 import {
+  artisanPassportPath,
   getArtisanToken,
   passportPublicUrl,
   statusColors,
@@ -135,7 +136,7 @@ export default function ArtisanQR() {
               View QR Code
             </a>
             <Link
-              to={`/passport/${selected.passportId || selected.id}`}
+              to={artisanPassportPath(selected.passportId || selected.id)}
               className="inline-flex items-center justify-center gap-2 px-5 py-4 rounded-2xl text-lg font-semibold bg-[#C1613C] text-[#FAF3E9]"
             >
               <Eye className="w-5 h-5" />

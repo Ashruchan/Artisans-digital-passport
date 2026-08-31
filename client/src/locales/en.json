@@ -1,0 +1,119 @@
+{
+  "nav": {
+    "howItWorks": "How it works",
+    "back": "Back",
+    "home": "Home",
+    "logout": "Log out"
+  },
+  "language": {
+    "button": "Language",
+    "title": "Choose language",
+    "close": "Close",
+    "en": "English",
+    "hi": "हिन्दी",
+    "or": "ଓଡ଼ିଆ"
+  },
+  "hero": {
+    "slogan": "Know who made it. Trust what you buy.",
+    "sloganAlt": "जानिए इसे किसने बनाया। जो खरीदें, उस पर भरोसा करें।",
+    "description": "See who made a handmade product and whether it is real."
+  },
+  "home": {
+    "artisan": "I am an Artisan",
+    "cooperative": "I am a Cooperative",
+    "checkProduct": "Check a Product"
+  },
+  "features": {
+    "story": {
+      "title": "Your craft story",
+      "description": "Tell buyers about you and your work."
+    },
+    "qr": {
+      "title": "QR code on each product",
+      "description": "Buyers can scan it to learn more."
+    },
+    "labels": {
+      "title": "Clear labels",
+      "description": "Each product is marked: Checked, Waiting, or Reported."
+    }
+  },
+  "checkProduct": {
+    "title": "Check a Product",
+    "description": "Enter the passport ID from the QR code.",
+    "placeholder": "Passport ID",
+    "enterId": "Enter a passport ID to check.",
+    "button": "View passport"
+  },
+  "status": {
+    "title": "Product status",
+    "checked": "Checked",
+    "waiting": "Waiting",
+    "reported": "Reported"
+  },
+  "howItWorks": {
+    "title": "How it works",
+    "step1": "The artisan adds their product.",
+    "step2": "The cooperative checks and confirms it.",
+    "step3": "A QR code is put on the product.",
+    "step4": "The buyer scans and reads the full story."
+  },
+  "footer": "A simple way to know who made your handmade product",
+  "common": {
+    "loading": "Loading...",
+    "karigar": "Karigar",
+    "error": "Something went wrong. Please try again."
+  },
+  "passport": {
+    "loading": "Loading passport...",
+    "notFound": "Passport not found",
+    "passportId": "Passport ID",
+    "madeBy": "Made by",
+    "verifiedArtisan": "Verified artisan",
+    "cooperative": "Cooperative",
+    "craftStory": "Craft story",
+    "materials": "Materials",
+    "scanAgain": "Scan again",
+    "reportItem": "Report item",
+    "reporting": "Reporting...",
+    "reportSuccess": "Thank you. This product has been reported for review.",
+    "reportAlready": "This product was already reported.",
+    "buyerView": "Buyer view",
+    "previewQr": "Preview buyer QR page"
+  },
+  "artisanLogin": {
+    "title": "Artisan login",
+    "otpSent": "Enter the OTP sent to your phone.",
+    "enterPhone": "Enter your phone number to continue.",
+    "phone": "Phone number",
+    "phonePlaceholder": "Enter your 10-digit number",
+    "sendOtp": "Send OTP",
+    "sendingOtp": "Sending OTP...",
+    "enterOtp": "Enter OTP",
+    "otpPlaceholder": "6-digit code",
+    "verify": "Verify & log in",
+    "checking": "Checking...",
+    "resend": "Resend OTP",
+    "pleaseWait": "Please wait...",
+    "notRegistered": "Not registered yet? Please contact your cooperative.",
+    "loginAgain": "Please log in again."
+  },
+  "artisanPortal": {
+    "welcome": "Welcome",
+    "verified": "Verified",
+    "pendingVerify": "Pending verify",
+    "whatToDo": "What do you want to do?",
+    "myProducts": "My Products",
+    "myProductsHint": "See your items",
+    "createPassport": "Create Passport",
+    "createPassportHint": "Add a new product",
+    "myQr": "My QR Code",
+    "myQrHint": "Show codes to buyers",
+    "myEarnings": "My Earnings",
+    "myEarningsHint": "Money you received",
+    "navHome": "Home",
+    "navProducts": "My Products",
+    "navCreate": "Create Passport",
+    "navQr": "My QR Code",
+    "navEarnings": "My Earnings"
+  }
+}

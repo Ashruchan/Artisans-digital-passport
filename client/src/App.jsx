@@ -10,6 +10,7 @@ import ArtisanProducts from "./pages/artisan/ArtisanProducts";
 import ArtisanCreatePassport from "./pages/artisan/ArtisanCreatePassport";
 import ArtisanQR from "./pages/artisan/ArtisanQR";
 import ArtisanEarnings from "./pages/artisan/ArtisanEarnings";
+import ArtisanPassportPage from "./pages/artisan/ArtisanPassportPage";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/artisan" element={<ArtisanPage />} />
+        <Route path="/artisan/passport/:passportId" element={<ArtisanPassportPage />} />
         <Route element={<ArtisanPortalLayout />}>
           <Route path="/artisan/home" element={<ArtisanHome />} />
           <Route path="/artisan/products" element={<ArtisanProducts />} />

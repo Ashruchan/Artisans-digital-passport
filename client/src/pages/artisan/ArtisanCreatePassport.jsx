@@ -10,6 +10,7 @@ import {
 import { createArtisanProduct } from "../../api/client";
 import QrCodeImage from "../../components/QrCodeImage";
 import {
+  artisanPassportPath,
   getArtisanToken,
   passportPublicUrl,
   readImageAsDataUrl,
@@ -146,7 +147,7 @@ export default function ArtisanCreatePassport() {
         </div>
 
         <Link
-          to={`/passport/${passportId}`}
+          to={artisanPassportPath(passportId)}
           className="inline-flex items-center justify-center gap-2 w-full bg-[#C1613C] text-[#FAF3E9] px-6 py-4 rounded-2xl text-lg font-semibold"
         >
           <Eye className="w-5 h-5" />

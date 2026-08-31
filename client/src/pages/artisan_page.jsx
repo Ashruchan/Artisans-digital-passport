@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Hammer } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import PageHeader from "../components/PageHeader";
 import {
   sendArtisanOtp,
   verifyArtisanOtp,
@@ -15,6 +17,7 @@ import {
 
 export default function ArtisanPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState("phone");
@@ -137,24 +140,14 @@ export default function ArtisanPage() {
   if (checkingSession) {
     return (
       <div className="min-h-screen bg-[#FAF3E9] flex items-center justify-center text-[#3E5641] text-xl font-semibold">
-        Loading...
+        {t("common.loading")}
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-[#FAF3E9] text-[#2B2420]">
-      <nav className="px-6 py-5 flex items-center justify-between">
-        <Link to="/" className="text-2xl font-bold">
-          <span className="text-[#3E5641]">Karigar</span>
-        </Link>
-        <Link
-          to="/"
-          className="text-base font-semibold px-5 py-2.5 rounded-2xl border border-[#3E5641] hover:bg-[#3E5641] hover:text-[#FAF3E9] transition-colors"
-        >
-          Back
-        </Link>
-      </nav>
+      <PageHeader fallback="/" />
 
       <div className="px-6 pb-16 pt-4">
         <div className="max-w-md mx-auto bg-[#FAF3E9] rounded-3xl border border-[#2B2420]/10 shadow-sm p-8">
