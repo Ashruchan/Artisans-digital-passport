@@ -291,7 +291,10 @@ const registerArtisanByCooperative = async (req, res, next) => {
       phone: normalizedPhone,
       craft: craft.trim(),
       region: region ? region.trim() : req.cooperative.region,
-      experience: experience ? experience.trim() : "Experienced Artisan",
+      experience:
+        experience != null && String(experience).trim()
+          ? String(experience).trim()
+          : "Experienced Artisan",
       email: cleanEmail,
       password: "ArtisanPassword123",
       cooperative: req.cooperative._id,

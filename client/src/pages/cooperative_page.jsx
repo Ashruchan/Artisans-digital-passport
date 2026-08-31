@@ -415,8 +415,8 @@ export default function CooperativePage() {
           craft: artisanForm.craft.trim(),
           region: artisanForm.region.trim(),
           experience: artisanForm.experience
-            ? Number(artisanForm.experience)
-            : 0,
+            ? String(artisanForm.experience).trim()
+            : "",
         }
       );
 
