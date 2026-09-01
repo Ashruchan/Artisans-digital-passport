@@ -153,6 +153,20 @@ export async function createArtisanProduct(token, data) {
   });
 }
 
+export async function uploadPassportVideo(token, videoFile, posterFile) {
+  const formData = new FormData();
+  formData.append("video", videoFile);
+  formData.append("poster", posterFile);
+
+  const res = await fetch(`${API_BASE}/artisans/uploads/video`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+
+  return parseResponse(res);
+}
+
 export async function getArtisanEarnings(token) {
   return apiGet("/artisans/earnings", {
     headers: { Authorization: `Bearer ${token}` },

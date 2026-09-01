@@ -4,7 +4,18 @@ const notFound = (req, res, next) => {
   next(error);
 };
 
+const multer = require("multer");
+
 const errorHandler = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    const message =
+      err.code === "LIMIT_FILE_SIZE"
+        ? "Video must be under 10MB"
+        : err.message || "Upload failed";
+    res.status(400).json({ message });
+    return;
+  }
+
   const statusCode = res.statusCode && res.statusCode !== 200 ? res.statusCode : 500;
 
   res.status(statusCode).json({

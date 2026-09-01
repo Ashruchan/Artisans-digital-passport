@@ -91,7 +91,9 @@ const formatProduct = (product) => {
     materialsUsed: doc.materialsUsed || "",
     craftStory: doc.craftStory || "",
     region: doc.region || "",
-    imageUrl: doc.imageUrl || "",
+    imageUrl: doc.imageUrl || doc.posterUrl || "",
+    videoUrl: doc.videoUrl || "",
+    posterUrl: doc.posterUrl || "",
     verifiedAt: doc.verifiedAt,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
@@ -141,6 +143,8 @@ const createMyProduct = async (req, res, next) => {
       craftStory,
       region,
       imageUrl,
+      videoUrl,
+      posterUrl,
       listedPrice,
       artisanPayout,
     } = req.body;
@@ -189,7 +193,13 @@ const createMyProduct = async (req, res, next) => {
       region: region
         ? String(region).trim()
         : req.user.region || "",
-      imageUrl: imageUrl ? String(imageUrl).trim() : "",
+      imageUrl: imageUrl
+        ? String(imageUrl).trim()
+        : posterUrl
+          ? String(posterUrl).trim()
+          : "",
+      videoUrl: videoUrl ? String(videoUrl).trim() : "",
+      posterUrl: posterUrl ? String(posterUrl).trim() : "",
       status: "Waiting",
     });
 

@@ -68,8 +68,22 @@ const productSchema = new mongoose.Schema(
       default: "",
     },
 
-    /** Product / passport photo (URL or data URL for demo). */
+    /** Thumbnail / poster image URL (used in lists — keeps API responses small). */
     imageUrl: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    /** Short product video clip URL (stored on disk, not in MongoDB). */
+    videoUrl: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    /** Video poster frame URL for fast list/thumbnail loading. */
+    posterUrl: {
       type: String,
       default: "",
       trim: true,

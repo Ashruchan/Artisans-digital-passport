@@ -5,6 +5,7 @@ const cors = require("cors");
 const path = require("path");
 const connectDB = require("./config/db");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+const { uploadsRoot } = require("./middleware/uploadMiddleware");
 
 const artisanRoutes = require("./routes/artisanRoutes");
 const authRoutes = require("./routes/authRoutes");
@@ -32,6 +33,7 @@ app.use(
   })
 );
 app.use(express.json({ limit: "8mb" }));
+app.use("/uploads", express.static(uploadsRoot));
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "Server running" });

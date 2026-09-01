@@ -25,3 +25,7 @@ Thumbs.db
 # Cache
 .cache/
 .vite/
+
+# User uploads (videos stored on disk, not in git)
+server/uploads/videos/
+server/uploads/posters/
