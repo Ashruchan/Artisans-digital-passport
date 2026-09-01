@@ -7,8 +7,19 @@ export default function PassportMedia({
   className = "",
   fallbackClassName = "",
 }) {
-  const poster = passport?.posterUrl || passport?.imageUrl;
-  const video = passport?.videoUrl;
+  const getFullUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
+      return url;
+    }
+    const apiBase = import.meta.env.VITE_API_URL
+      ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, "")
+      : "";
+    return `${apiBase}${url.startsWith("/") ? "" : "/"}${url}`;
+  };
+
+  const poster = getFullUrl(passport?.posterUrl || passport?.imageUrl);
+  const video = getFullUrl(passport?.videoUrl);
 
   if (mode === "detail" && video) {
     return (
@@ -16,7 +27,7 @@ export default function PassportMedia({
         src={video}
         poster={poster || undefined}
         controls
-        preload="none"
+        preload="metadata"
         playsInline
         className={className}
       />

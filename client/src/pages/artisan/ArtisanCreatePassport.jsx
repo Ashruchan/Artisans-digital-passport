@@ -19,7 +19,7 @@ import {
 
 const STEPS = [
   { key: "photo", title: "Add photo", hint: "Take or choose a product photo" },
-  { key: "video", title: "Add video (optional)", hint: "Upload a short craft video (MP4/WebM, max 10MB)" },
+  { key: "video", title: "Add video (Required)", hint: "Upload a short craft video showing how it was made (MP4/WebM, max 10MB)" },
   { key: "name", title: "Product name", hint: "What is this product called?" },
   { key: "craft", title: "Craft type", hint: "What craft is this?" },
   { key: "materials", title: "Materials", hint: "What did you use to make it?" },
@@ -57,10 +57,11 @@ export default function ArtisanCreatePassport() {
   const progress = ((stepIndex + 1) / STEPS.length) * 100;
 
   const canContinue = useMemo(() => {
+    if (step.key === "video") return Boolean(videoFile);
     if (step.key === "name") return Boolean(form.name.trim());
     if (step.key === "craft") return Boolean(form.category.trim());
     return true;
-  }, [step.key, form.name, form.category]);
+  }, [step.key, videoFile, form.name, form.category]);
 
   function updateField(key, value) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -118,6 +119,11 @@ export default function ArtisanCreatePassport() {
   async function submitPassport() {
     const token = getArtisanToken();
     if (!token) return;
+
+    if (!videoFile) {
+      setError("Video is required to create a passport.");
+      return;
+    }
 
     setLoading(true);
     setError("");
