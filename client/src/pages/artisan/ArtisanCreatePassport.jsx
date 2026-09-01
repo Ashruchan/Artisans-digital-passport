@@ -18,7 +18,6 @@ import {
 } from "../../utils/artisanAuth";
 
 const STEPS = [
-  { key: "photo", title: "Add photo", hint: "Take or choose a product photo" },
   { key: "video", title: "Add video (Required)", hint: "Upload a short craft video showing how it was made (MP4/WebM, max 10MB)" },
   { key: "name", title: "Product name", hint: "What is this product called?" },
   { key: "craft", title: "Craft type", hint: "What craft is this?" },
@@ -238,43 +237,6 @@ export default function ArtisanCreatePassport() {
       <div className="rounded-3xl border border-[#2B2420]/10 p-6 sm:p-8 shadow-sm">
         <h2 className="text-2xl font-bold text-[#2B2420] mb-1">{step.title}</h2>
         <p className="text-base text-[#2B2420]/75 mb-6">{step.hint}</p>
-
-        {step.key === "photo" ? (
-          <div className="space-y-4">
-            <label className="flex flex-col items-center justify-center gap-3 min-h-[12rem] rounded-3xl border-2 border-dashed border-[#3E5641]/40 bg-[#3E5641]/5 cursor-pointer px-4 py-8">
-              {form.imageUrl ? (
-                <img
-                  src={form.imageUrl}
-                  alt=""
-                  className="max-h-56 rounded-2xl object-cover"
-                />
-              ) : (
-                <>
-                  <Camera className="w-12 h-12 text-[#C1613C]" />
-                  <span className="text-lg font-semibold text-[#3E5641]">
-                    Tap to add photo
-                  </span>
-                </>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="hidden"
-                onChange={handlePhotoChange}
-              />
-            </label>
-            {form.imageUrl ? (
-              <button
-                type="button"
-                onClick={() => updateField("imageUrl", "")}
-                className="text-base font-semibold text-[#C1613C]"
-              >
-                Remove photo
-              </button>
-            ) : null}
-          </div>
-        ) : null}
 
         {step.key === "video" ? (
           <div className="space-y-4">
