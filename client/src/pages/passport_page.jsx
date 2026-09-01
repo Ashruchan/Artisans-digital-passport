@@ -11,6 +11,7 @@ import {
 import { getPublicPassport, reportPublicPassport } from "../api/client";
 import QrCodeImage from "../components/QrCodeImage";
 import PageHeader from "../components/PageHeader";
+import PassportMedia from "../components/PassportMedia";
 import {
   passportPublicUrl,
   statusColors,
@@ -94,17 +95,11 @@ export default function PassportPage() {
 
       <div className="max-w-xl mx-auto px-6 pb-16 space-y-6">
         <div className="rounded-3xl overflow-hidden border border-[#2B2420]/10 bg-[#FAF3E9] shadow-sm">
-          <div className="aspect-[4/3] bg-[#3E5641]/10 flex items-center justify-center">
-            {passport.imageUrl ? (
-              <img
-                src={passport.imageUrl}
-                alt=""
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <Package className="w-16 h-16 text-[#3E5641]/40" />
-            )}
-          </div>
+            <PassportMedia
+              passport={passport}
+              mode="detail"
+              className="w-full h-full object-cover"
+            />
           <div className="p-6 space-y-3">
             <span
               className="inline-flex px-3 py-1.5 rounded-full text-sm font-semibold"

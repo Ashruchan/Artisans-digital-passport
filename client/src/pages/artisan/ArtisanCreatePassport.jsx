@@ -2,12 +2,13 @@ import { useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import {
   Camera,
+  Video,
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
   Eye,
 } from "lucide-react";
-import { createArtisanProduct } from "../../api/client";
+import { createArtisanProduct, uploadPassportVideo } from "../../api/client";
 import QrCodeImage from "../../components/QrCodeImage";
 import {
   artisanPassportPath,
@@ -18,6 +19,7 @@ import {
 
 const STEPS = [
   { key: "photo", title: "Add photo", hint: "Take or choose a product photo" },
+  { key: "video", title: "Add video (optional)", hint: "Upload a short craft video (MP4/WebM, max 10MB)" },
   { key: "name", title: "Product name", hint: "What is this product called?" },
   { key: "craft", title: "Craft type", hint: "What craft is this?" },
   { key: "materials", title: "Materials", hint: "What did you use to make it?" },
@@ -45,7 +47,9 @@ export default function ArtisanCreatePassport() {
     category: artisan?.craft || "",
     region: artisan?.region || "",
   }));
+  const [videoFile, setVideoFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
   const [error, setError] = useState("");
   const [created, setCreated] = useState(null);
 
@@ -74,6 +78,25 @@ export default function ArtisanCreatePassport() {
     }
   }
 
+  function handleVideoChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError("");
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Video must be under 10MB");
+      return;
+    }
+
+    const validTypes = ["video/mp4", "video/webm", "video/quicktime"];
+    if (!validTypes.includes(file.mimetype) && !file.type.startsWith("video/")) {
+      setError("Please select an MP4 or WebM video file");
+      return;
+    }
+
+    setVideoFile(file);
+  }
+
   function goNext() {
     setError("");
     if (!canContinue) {
@@ -99,6 +122,22 @@ export default function ArtisanCreatePassport() {
     setLoading(true);
     setError("");
     try {
+      let uploadedVideoUrl = "";
+      let uploadedPosterUrl = "";
+
+      if (videoFile) {
+        setUploadingMedia(true);
+        try {
+          const uploadRes = await uploadPassportVideo(token, videoFile);
+          uploadedVideoUrl = uploadRes.videoUrl || "";
+          uploadedPosterUrl = uploadRes.posterUrl || "";
+        } catch (uploadErr) {
+          throw new Error(uploadErr?.message || "Failed to upload video file.");
+        } finally {
+          setUploadingMedia(false);
+        }
+      }
+
       const payload = {
         name: form.name.trim(),
         category: form.category.trim(),
@@ -107,6 +146,8 @@ export default function ArtisanCreatePassport() {
         craftStory: form.craftStory.trim(),
         description: form.craftStory.trim(),
         imageUrl: form.imageUrl,
+        videoUrl: uploadedVideoUrl,
+        posterUrl: uploadedPosterUrl,
         listedPrice: form.listedPrice === "" ? 0 : Number(form.listedPrice),
         artisanPayout:
           form.artisanPayout === ""
@@ -229,6 +270,44 @@ export default function ArtisanCreatePassport() {
           </div>
         ) : null}
 
+        {step.key === "video" ? (
+          <div className="space-y-4">
+            <label className="flex flex-col items-center justify-center gap-3 min-h-[12rem] rounded-3xl border-2 border-dashed border-[#3E5641]/40 bg-[#3E5641]/5 cursor-pointer px-4 py-8">
+              {videoFile ? (
+                <div className="text-center space-y-2">
+                  <Video className="w-12 h-12 text-[#3E5641] mx-auto" />
+                  <p className="text-base font-semibold text-[#2B2420]">{videoFile.name}</p>
+                  <p className="text-sm text-[#2B2420]/60">
+                    {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <Video className="w-12 h-12 text-[#C1613C]" />
+                  <span className="text-lg font-semibold text-[#3E5641]">
+                    Tap to select video
+                  </span>
+                </>
+              )}
+              <input
+                type="file"
+                accept="video/mp4,video/webm,video/quicktime,video/*"
+                className="hidden"
+                onChange={handleVideoChange}
+              />
+            </label>
+            {videoFile ? (
+              <button
+                type="button"
+                onClick={() => setVideoFile(null)}
+                className="text-base font-semibold text-[#C1613C]"
+              >
+                Remove video
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+
         {step.key === "name" ? (
           <input
             value={form.name}
@@ -341,7 +420,9 @@ export default function ArtisanCreatePassport() {
           className="flex-[1.4] inline-flex items-center justify-center gap-2 px-5 py-4 rounded-2xl text-lg font-semibold bg-[#C1613C] text-[#FAF3E9] disabled:opacity-60"
         >
           {loading
-            ? "Saving..."
+            ? uploadingMedia
+              ? "Uploading video..."
+              : "Saving..."
             : stepIndex === STEPS.length - 1
               ? "Create"
               : "Next"}

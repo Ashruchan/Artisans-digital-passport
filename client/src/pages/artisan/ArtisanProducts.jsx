@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Package, Eye } from "lucide-react";
 import { getArtisanProducts } from "../../api/client";
+import PassportMedia from "../../components/PassportMedia";
 import {
   artisanPassportPath,
   getArtisanToken,
@@ -70,15 +71,11 @@ export default function ArtisanProducts() {
               className="rounded-3xl border border-[#2B2420]/10 overflow-hidden bg-[#FAF3E9] shadow-sm flex flex-col"
             >
               <div className="aspect-[4/3] bg-[#3E5641]/10 flex items-center justify-center">
-                {product.imageUrl ? (
-                  <img
-                    src={product.imageUrl}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <Package className="w-14 h-14 text-[#3E5641]/50" />
-                )}
+                <PassportMedia
+                  passport={product}
+                  mode="poster"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="p-5 flex flex-col gap-3 flex-1">
                 <h2 className="text-xl font-bold text-[#2B2420] leading-snug">
