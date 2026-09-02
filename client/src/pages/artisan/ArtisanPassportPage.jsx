@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ExternalLink,
   MapPin,
   Package,
   Sparkles,
+  Trash2,
 } from "lucide-react";
-import { getArtisanProduct } from "../../api/client";
+import { getArtisanProduct, deleteArtisanProduct } from "../../api/client";
 import PassportMedia from "../../components/PassportMedia";
 import PageHeader from "../../components/PageHeader";
 import QrCodeImage from "../../components/QrCodeImage";
@@ -22,9 +23,11 @@ import {
 /** Artisan-only passport view (not the public QR page). */
 export default function ArtisanPassportPage() {
   const { passportId } = useParams();
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const [passport, setPassport] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -44,6 +47,23 @@ export default function ArtisanPassportPage() {
       }
     })();
   }, [passportId, t]);
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Are you sure you want to delete "${passport?.name}"? This cannot be undone.`)) {
+      return;
+    }
+    const token = getArtisanToken();
+    if (!token) return;
+
+    setDeleting(true);
+    try {
+      await deleteArtisanProduct(token, passport.passportId || passport.id);
+      navigate("/artisan/products");
+    } catch (err) {
+      alert(err?.message || "Failed to delete passport");
+      setDeleting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -142,6 +162,16 @@ export default function ArtisanPassportPage() {
             {t("passport.previewQr")}
           </a>
         </section>
+
+        <button
+          type="button"
+          onClick={handleDelete}
+          disabled={deleting}
+          className="inline-flex items-center justify-center gap-2 w-full bg-[#A83E3E] text-[#FAF3E9] px-6 py-4 rounded-2xl text-lg font-semibold hover:bg-[#8A3232] transition-colors disabled:opacity-50"
+        >
+          <Trash2 className="w-5 h-5" />
+          {deleting ? "Deleting Passport..." : "Delete Passport"}
+        </button>
 
         <Link
           to="/artisan/products"

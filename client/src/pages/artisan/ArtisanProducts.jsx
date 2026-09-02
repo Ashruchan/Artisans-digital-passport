@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Package, Eye } from "lucide-react";
-import { getArtisanProducts } from "../../api/client";
+import { Package, Eye, Trash2 } from "lucide-react";
+import { getArtisanProducts, deleteArtisanProduct } from "../../api/client";
 import PassportMedia from "../../components/PassportMedia";
 import {
   artisanPassportPath,
@@ -14,23 +14,44 @@ export default function ArtisanProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
+
+  const fetchProducts = async () => {
+    const token = getArtisanToken();
+    if (!token) return;
+    setLoading(true);
+    try {
+      const data = await getArtisanProducts(token);
+      setProducts(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err?.message || "Could not load products.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleDelete = async (productId, productName) => {
+    if (!window.confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+      return;
+    }
+
     const token = getArtisanToken();
     if (!token) return;
 
-    (async () => {
-      setLoading(true);
-      try {
-        const data = await getArtisanProducts(token);
-        setProducts(Array.isArray(data) ? data : []);
-      } catch (err) {
-        setError(err?.message || "Could not load products.");
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    setDeletingId(productId);
+    try {
+      await deleteArtisanProduct(token, productId);
+      setProducts((prev) => prev.filter((p) => (p.id || p.passportId) !== productId));
+    } catch (err) {
+      alert(err?.message || "Failed to delete product");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -65,6 +86,9 @@ export default function ArtisanProducts() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {products.map((product) => {
           const colors = statusColors(product.status);
+          const pId = product.passportId || product.id;
+          const isDeleting = deletingId === pId;
+
           return (
             <article
               key={product.id}
@@ -87,13 +111,24 @@ export default function ArtisanProducts() {
                 >
                   {statusLabel(product.status)}
                 </span>
-                <Link
-                  to={artisanPassportPath(product.passportId || product.id)}
-                  className="mt-auto inline-flex items-center justify-center gap-2 w-full bg-[#3E5641] text-[#FAF3E9] px-5 py-3.5 rounded-2xl text-lg font-semibold"
-                >
-                  <Eye className="w-5 h-5" />
-                  View
-                </Link>
+                <div className="mt-auto flex items-center gap-2 pt-2">
+                  <Link
+                    to={artisanPassportPath(pId)}
+                    className="flex-1 inline-flex items-center justify-center gap-2 bg-[#3E5641] text-[#FAF3E9] px-4 py-3 rounded-2xl text-base font-semibold"
+                  >
+                    <Eye className="w-4 h-4" />
+                    View
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(pId, product.name)}
+                    disabled={isDeleting}
+                    className="inline-flex items-center justify-center gap-1.5 bg-[#A83E3E] text-[#FAF3E9] px-4 py-3 rounded-2xl text-base font-semibold hover:bg-[#8A3232] transition-colors disabled:opacity-50"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    {isDeleting ? "Deleting..." : "Delete"}
+                  </button>
+                </div>
               </div>
             </article>
           );

@@ -250,6 +250,28 @@ const getMyEarnings = async (req, res, next) => {
   }
 };
 
+const deleteMyProduct = async (req, res, next) => {
+  try {
+    const product = await Product.findOneAndDelete({
+      _id: req.params.productId,
+      artisan: req.user._id,
+    });
+
+    if (!product) {
+      res.status(404);
+      throw new Error("Product not found or not authorized to delete");
+    }
+
+    res.json({
+      success: true,
+      message: "Passport deleted successfully",
+      id: req.params.productId,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getArtisanWelcome,
   getMe,
@@ -258,4 +280,5 @@ module.exports = {
   getMyProductById,
   createMyProduct,
   getMyEarnings,
+  deleteMyProduct,
 };

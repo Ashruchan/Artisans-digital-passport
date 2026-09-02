@@ -121,6 +121,19 @@ export async function apiPatch(path, body, options = {}) {
   return parseResponse(res);
 }
 
+export async function apiDelete(path, options = {}) {
+  const { headers: extraHeaders, ...rest } = options;
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...rest,
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...(extraHeaders || {}),
+    },
+  });
+  return parseResponse(res);
+}
+
 export async function sendArtisanOtp(phone) {
   return apiPost("/auth/send-otp", { phone });
 }
@@ -149,6 +162,12 @@ export async function getArtisanProduct(token, productId) {
 
 export async function createArtisanProduct(token, data) {
   return apiPost("/artisans/products", data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function deleteArtisanProduct(token, productId) {
+  return apiDelete(`/artisans/products/${productId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 }

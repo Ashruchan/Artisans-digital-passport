@@ -8,6 +8,7 @@ const {
   getMyProductById,
   createMyProduct,
   getMyEarnings,
+  deleteMyProduct,
 } = require("../controllers/artisanController");
 const { uploadPassportVideo } = require("../controllers/uploadController");
 const { protect } = require("../middleware/authMiddleware");
@@ -18,6 +19,7 @@ router.post("/register", registerArtisan);
 router.get("/me", protect, getMe);
 router.get("/products", protect, getMyProducts);
 router.get("/products/:productId", protect, getMyProductById);
+router.delete("/products/:productId", protect, deleteMyProduct);
 router.post(
   "/uploads/video",
   protect,
