@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Package } from "lucide-react";
 
 /** Passport hero media — video on detail pages, poster in lists. */
@@ -7,6 +8,8 @@ export default function PassportMedia({
   className = "",
   fallbackClassName = "",
 }) {
+  const [videoError, setVideoError] = useState(false);
+
   const getFullUrl = (url) => {
     if (!url) return "";
     if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
@@ -21,7 +24,11 @@ export default function PassportMedia({
   const poster = getFullUrl(passport?.posterUrl || passport?.imageUrl);
   const video = getFullUrl(passport?.videoUrl);
 
-  if (mode === "detail" && video) {
+  useEffect(() => {
+    setVideoError(false);
+  }, [video]);
+
+  if (mode === "detail" && video && !videoError) {
     return (
       <video
         src={video}
@@ -30,6 +37,7 @@ export default function PassportMedia({
         preload="metadata"
         playsInline
         className={className}
+        onError={() => setVideoError(true)}
       />
     );
   }
